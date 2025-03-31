@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:map/core/global/widgets/search_widget.dart';
+import 'package:map/core/utils/utils.dart';
+import 'package:map/features/explore/presentation/widgets/change_map_type_button.dart';
+import 'package:map/features/explore/presentation/widgets/go_to_button.dart';
+import 'package:map/features/explore/presentation/widgets/nearby_places_widget.dart';
+import 'package:map/features/explore/presentation/widgets/track_location_button.dart';
 import 'package:map/features/geolocation/geolocation_bloc.dart';
+import 'package:map/features/search/presentation/search_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -15,6 +22,11 @@ class ExplorePage extends StatefulWidget {
 class _ExplorePageState extends State<ExplorePage> {
   final TextEditingController _searchController = TextEditingController();
   final MapController mapController = MapController();
+  FocusScopeNode focusNode = FocusScopeNode();
+  PointerDownEvent pointerDownEvent = PointerDownEvent();
+
+  double _slidingPosition = 0;
+  double _buttonOpacity = 1.0;
 
   double getZoomLevel(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -86,6 +98,62 @@ class _ExplorePageState extends State<ExplorePage> {
                   }
                   return Container();
                 },
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SearchWidget(
+                controller: _searchController,
+                isShowCancel: false,
+                loading: false,
+                readOnly: true,
+                onCancelTap: () {},
+                isOutLined:
+                    PanelPositionUtils.isSlidingPanelOpen(_slidingPosition)
+                        ? true
+                        : false,
+                focusScopeNode: focusNode,
+                onTapOutside: (pointerDownEvent) {
+                  focusNode.unfocus();
+                },
+                onTap: () {
+                  Future.delayed(Duration.zero, () {
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder:
+                            (context, animation, secondaryAnimation) =>
+                                const SearchPage(),
+                        transitionsBuilder: (
+                          context,
+                          animation,
+                          secondaryAnimation,
+                          child,
+                        ) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: Duration(milliseconds: 150),
+                      ),
+                    );
+                  });
+                },
+              ),
+               NearbyPlacesWidget(
+                onPlaceClickListner: (nearbyPlaces) {},
+                onComplete: (value) {},
+              ),
+              ChangeMapTypeButton(onTap: () {}),
+              Spacer(),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TrackLocationButton(onTap: () {}),
+                  GoToButton(onTap: () {}),
+                ],
               ),
             ],
           ),

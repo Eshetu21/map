@@ -27,8 +27,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       width: double.infinity,
       height: 80,
-      decoration: BoxDecoration(
-        color: bottomNavColor),
+      decoration: BoxDecoration(color: bottomNavColor),
       child: Row(
         children: List.generate(
           _bottomNavigationBarLabels.length,
@@ -46,13 +45,13 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
 final List<String> _bottomNavigationBarLabels = [
   "Explore",
-  "Search",
+  "Saved",
   "Contribute",
 ];
 
 final List<IconData> _bottomNavigationBarIcons = [
   Icons.location_on,
-  Icons.search,
+  Icons.bookmark_border,
   Icons.add_circle_outline,
 ];
 

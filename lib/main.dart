@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:map/core/home/home_page.dart';
+import 'package:map/core/theme/app_theme.dart';
 import 'package:map/features/geolocation/geolocation_bloc.dart';
 
 void main() {
@@ -16,10 +17,7 @@ class MainApp extends StatelessWidget {
       providers: [BlocProvider(create: (_) => GeolocationBloc())],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
-          useMaterial3: true,
-        ),
+        theme: AppTheme.lightThemeMode,
         home: HomePage(),
       ),
     );
