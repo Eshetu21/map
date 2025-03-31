@@ -18,7 +18,6 @@ class _SearchPageState extends State<SearchPage> {
           SearchWidget(
             controller: _searchController,
             autoFocus: true,
-            isOutLined: false,
             isOnSearchPage: true,
             onCancelTap: () {
               _searchController.clear();

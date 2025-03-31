@@ -10,7 +10,6 @@ class SearchWidget extends StatelessWidget {
   final void Function(PointerDownEvent)? onTapOutside;
   final VoidCallback? onCancelTap;
   final String Function(String?)? validate;
-  final bool? isOutLined;
   final bool? isOnSearchPage;
   final bool? readOnly;
   final bool? autoFocus;
@@ -27,7 +26,6 @@ class SearchWidget extends StatelessWidget {
     this.onTapOutside,
     this.onCancelTap,
     this.validate,
-    this.isOutLined,
     this.isOnSearchPage,
     this.readOnly,
     this.autoFocus,
@@ -46,21 +44,14 @@ class SearchWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: whiteColor,
           borderRadius: BorderRadius.circular(30),
-          border:
-              isOutLined == true
-                  ? Border.all(width: 1, color: greyColor)
-                  : Border.all(width: 1, color: Colors.transparent),
-          boxShadow:
-              isOutLined == true
-                  ? []
-                  : [
-                    BoxShadow(
-                      color: Colors.grey,
-                      blurRadius: 5,
-                      spreadRadius: 0.5,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              blurRadius: 5,
+              spreadRadius: 0.5,
+              offset: Offset(0, 0),
+            ),
+          ],
         ),
         child: TextFormField(
           autocorrect: autoFocus ?? false,
@@ -78,7 +69,7 @@ class SearchWidget extends StatelessWidget {
           style: TextStyle(fontSize: 16),
           decoration: InputDecoration(
             hintText: "Search here",
-            hintStyle: TextStyle(color: greyColorLight),
+            hintStyle: TextStyle(color: greyColor),
             contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
             border: InputBorder.none,
             prefixIcon:

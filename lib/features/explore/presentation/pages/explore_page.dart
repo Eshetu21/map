@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map/core/global/widgets/search_widget.dart';
-import 'package:map/core/utils/utils.dart';
 import 'package:map/features/explore/presentation/widgets/change_map_type_button.dart';
 import 'package:map/features/explore/presentation/widgets/go_to_button.dart';
 import 'package:map/features/explore/presentation/widgets/nearby_places_widget.dart';
@@ -23,10 +22,9 @@ class _ExplorePageState extends State<ExplorePage> {
   final TextEditingController _searchController = TextEditingController();
   final MapController mapController = MapController();
   FocusScopeNode focusNode = FocusScopeNode();
-  PointerDownEvent pointerDownEvent = PointerDownEvent();
 
-  double _slidingPosition = 0;
-  double _buttonOpacity = 1.0;
+  String _mapTypeUrl =
+      'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MHrVVdsKyXBzKmc1z9Oo';
 
   double getZoomLevel(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -61,6 +59,63 @@ class _ExplorePageState extends State<ExplorePage> {
     _checkLocationPermission();
   }
 
+  void _showMapTypeBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Select Map Type",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                leading: Icon(Icons.map, color: Colors.blue),
+                title: const Text("Street"),
+                onTap: () {
+                  setState(() {
+                    _mapTypeUrl =
+                        'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MHrVVdsKyXBzKmc1z9Oo';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.satellite, color: Colors.green),
+                title: const Text("Satellite"),
+                onTap: () {
+                  setState(() {
+                    _mapTypeUrl =
+                        'https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=MHrVVdsKyXBzKmc1z9Oo';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.terrain, color: Colors.brown),
+                title: const Text("Landscape"),
+                onTap: () {
+                  setState(() {
+                    _mapTypeUrl =
+                        'https://api.maptiler.com/maps/topo/{z}/{x}/{y}.png?key=MHrVVdsKyXBzKmc1z9Oo';
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double zoomLevel = getZoomLevel(context);
@@ -76,10 +131,7 @@ class _ExplorePageState extends State<ExplorePage> {
               initialZoom: zoomLevel,
             ),
             children: [
-              TileLayer(
-                urlTemplate:
-                    'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MHrVVdsKyXBzKmc1z9Oo',
-              ),
+              TileLayer(urlTemplate: _mapTypeUrl),
               BlocBuilder<GeolocationBloc, GeolocationState>(
                 builder: (context, state) {
                   if (state is GeolocationLoaded) {
@@ -87,7 +139,7 @@ class _ExplorePageState extends State<ExplorePage> {
                       markers: [
                         Marker(
                           point: LatLng(state.latitude, state.longitude),
-                          child: Icon(
+                          child: const Icon(
                             Icons.location_pin,
                             color: Colors.purple,
                             size: 30,
@@ -110,12 +162,8 @@ class _ExplorePageState extends State<ExplorePage> {
                 loading: false,
                 readOnly: true,
                 onCancelTap: () {},
-                isOutLined:
-                    PanelPositionUtils.isSlidingPanelOpen(_slidingPosition)
-                        ? true
-                        : false,
                 focusScopeNode: focusNode,
-                onTapOutside: (pointerDownEvent) {
+                onTapOutside: (event) {
                   focusNode.unfocus();
                 },
                 onTap: () {
@@ -142,11 +190,15 @@ class _ExplorePageState extends State<ExplorePage> {
                   });
                 },
               ),
-               NearbyPlacesWidget(
+              NearbyPlacesWidget(
                 onPlaceClickListner: (nearbyPlaces) {},
                 onComplete: (value) {},
               ),
-              ChangeMapTypeButton(onTap: () {}),
+              ChangeMapTypeButton(
+                onTap: () {
+                  _showMapTypeBottomSheet(context);
+                },
+              ),
               Spacer(),
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -162,4 +214,3 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 }
-
