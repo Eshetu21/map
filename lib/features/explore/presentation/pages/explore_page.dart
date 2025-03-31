@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:map/core/global/widgets/search_widget.dart';
 import 'package:map/features/explore/presentation/widgets/change_map_type_button.dart';
 import 'package:map/features/explore/presentation/widgets/go_to_button.dart';
+import 'package:map/features/explore/presentation/widgets/map_type_selector.dart';
 import 'package:map/features/explore/presentation/widgets/nearby_places_widget.dart';
 import 'package:map/features/explore/presentation/widgets/track_location_button.dart';
 import 'package:map/features/geolocation/geolocation_bloc.dart';
@@ -18,7 +19,8 @@ class ExplorePage extends StatefulWidget {
   State<ExplorePage> createState() => _ExplorePageState();
 }
 
-class _ExplorePageState extends State<ExplorePage> {
+class _ExplorePageState extends State<ExplorePage>
+    with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final MapController mapController = MapController();
   FocusScopeNode focusNode = FocusScopeNode();
@@ -66,51 +68,13 @@ class _ExplorePageState extends State<ExplorePage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        return Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "Select Map Type",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.map, color: Colors.blue),
-                title: const Text("Street"),
-                onTap: () {
-                  setState(() {
-                    _mapTypeUrl =
-                        'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MHrVVdsKyXBzKmc1z9Oo';
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.satellite, color: Colors.green),
-                title: const Text("Satellite"),
-                onTap: () {
-                  setState(() {
-                    _mapTypeUrl =
-                        'https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=MHrVVdsKyXBzKmc1z9Oo';
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.terrain, color: Colors.brown),
-                title: const Text("Landscape"),
-                onTap: () {
-                  setState(() {
-                    _mapTypeUrl =
-                        'https://api.maptiler.com/maps/topo/{z}/{x}/{y}.png?key=MHrVVdsKyXBzKmc1z9Oo';
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
+        return MapTypeSelector(
+          selectedMapUrl: _mapTypeUrl,
+          onMapTypeSelected: (String selectedUrl) {
+            setState(() {
+              _mapTypeUrl = selectedUrl;
+            });
+          },
         );
       },
     );
@@ -203,7 +167,27 @@ class _ExplorePageState extends State<ExplorePage> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TrackLocationButton(onTap: () {}),
+                  TrackLocationButton(
+                    onTap: ()  {
+                      final geolocationState =
+                           context.read<GeolocationBloc>().state;
+                      if (geolocationState is GeolocationLoaded) {
+                        final dest = LatLng(
+                          geolocationState.latitude,
+                          geolocationState.longitude,
+                        );
+                        mapController.animatedMove(
+                          dest,
+                          15.0,
+                          vsync: this,
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Location not avaliable")),
+                        );
+                      }
+                    },
+                  ),
                   GoToButton(onTap: () {}),
                 ],
               ),
@@ -214,3 +198,4 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 }
+
