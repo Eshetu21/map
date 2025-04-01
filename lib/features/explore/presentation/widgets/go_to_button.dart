@@ -46,7 +46,7 @@ extension AnimatedMapController on MapController {
     double targetZoom,
     {required TickerProvider vsync, 
     dynamic mapState, 
-    Duration duration = const Duration(milliseconds: 800)}) {
+    Duration duration = const Duration(milliseconds: 500)}) {
 
     final currentCenter = mapState != null
         ? LatLng(mapState.latitude, mapState.longitude)
