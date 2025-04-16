@@ -43,23 +43,44 @@ class GoToButton extends StatelessWidget {
 extension AnimatedMapController on MapController {
   void animatedMove(
     LatLng destLocation,
-    double targetZoom,
-    {required TickerProvider vsync, 
-    dynamic mapState, 
-    Duration duration = const Duration(milliseconds: 500)}) {
-
+    double targetZoom, {
+    required TickerProvider vsync,
+    dynamic mapState,
+    Duration duration = const Duration(milliseconds: 1800),
+  }) {
     final currentCenter = mapState != null
         ? LatLng(mapState.latitude, mapState.longitude)
         : destLocation;
 
     final currentZoom = mapState?.zoom ?? targetZoom;
 
-    final latTween = Tween<double>(begin: currentCenter.latitude, end: destLocation.latitude);
-    final lngTween = Tween<double>(begin: currentCenter.longitude, end: destLocation.longitude);
-    final zoomTween = Tween<double>(begin: currentZoom, end: targetZoom);
+    final latTween = Tween<double>(
+      begin: currentCenter.latitude,
+      end: destLocation.latitude,
+    );
+    final lngTween = Tween<double>(
+      begin: currentCenter.longitude,
+      end: destLocation.longitude,
+    );
+    final zoomOut = (currentZoom + targetZoom) / 2 - 0.5;
+    final zoomTween = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: currentZoom, end: zoomOut)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 40,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: zoomOut, end: targetZoom)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 60,
+      ),
+    ]);
 
     final controller = AnimationController(vsync: vsync, duration: duration);
-    final animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+    final animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOutCubic,
+    );
 
     controller.addListener(() {
       move(
@@ -69,7 +90,7 @@ extension AnimatedMapController on MapController {
     });
 
     controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
         controller.dispose();
       }
     });
