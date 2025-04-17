@@ -11,9 +11,9 @@ class PlacesService {
       final query = """
         [out:json];
         (
-          node["amenity"="fuel"](around:10000,${position.latitude},${position.longitude});
-          way["amenity"="fuel"](around:10000,${position.latitude},${position.longitude});
-          relation["amenity"="fuel"](around:10000,${position.latitude},${position.longitude});
+          node["amenity"="fuel"](around:1000,${position.latitude},${position.longitude});
+          way["amenity"="fuel"](around:1000,${position.latitude},${position.longitude});
+          relation["amenity"="fuel"](around:1000,${position.latitude},${position.longitude});
         );
         out center;
       """;
